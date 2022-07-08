@@ -1,18 +1,17 @@
-FROM golang:1.16-alpine AS builder
+FROM golang:1.18-alpine AS builder
  
 # define o mantenedor da imagem
 LABEL maintainer="Luís Henrique Fontes Alcântara Machado"
 
-COPY . .
+WORKDIR /go/src/app
 
-CMD ["go","run","main.go"]
+COPY hello.go .
 
+RUN CGO_ENABLED=0 go build -o /app hello.go
 
-# RUN go build -ldflags="-s -w" -o /go/app
-
-FROM scratch
+FROM scratch AS final  
 LABEL maintainer="Luís Henrique Fontes Alcântara Machado"
 
-COPY . /go/bin/main
+COPY --from=builder /app /app
 
-CMD ["/go/bin/main"]
+CMD ["./app"]
